@@ -1,0 +1,301 @@
+<html style="width: 100%;">
+
+<head>
+    <!-- JQuery -->
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <!-- Bootstrap tooltips -->
+    <script type="text/javascript"
+        src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.4/umd/popper.min.js"></script>
+    <!-- Bootstrap core JavaScript -->
+    <script type="text/javascript"
+        src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.5.0/js/bootstrap.min.js"></script>
+    <!-- MDB core JavaScript -->
+    <script type="text/javascript"
+        src="https://cdnjs.cloudflare.com/ajax/libs/mdbootstrap/4.19.1/js/mdb.min.js"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.2/css/all.css">
+    <!-- Google Fonts -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap">
+    <!-- Bootstrap core CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.5.0/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Material Design Bootstrap -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/mdbootstrap/4.19.1/css/mdb.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.2.9/semantic.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.2.9/semantic.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/socket.io-client@2/dist/socket.io.js"></script>
+    <script type="text/javascript" src="https://flashphoner.com/downloads/builds/flashphoner_client/wcs_api-2.0/current/flashphoner.js"></script>
+    <script type="text/javascript" src="{{url_for('static', filename='player-min.js')}}"></script>
+    <style>
+        .column {
+            float: left;
+            width: 75%;
+            padding: 10px;
+            /* height: 300px; */
+            /* Should be removed. Only for demonstration */
+        }
+
+        .column3 {
+            float: left;
+            width: 25%;
+            padding: 10px;
+            /* height: 300px; */
+            /* Should be removed. Only for demonstration */
+        }
+
+        .column2 {
+            float: left;
+            width: 50%;
+            padding: 5px;
+            /* height: 600px; */
+            /* Should be removed. Only for demonstration */
+        }
+
+        /* Clear floats after the columns */
+        .row:after {
+            content: "";
+            display: table;
+            clear: both;
+        }
+
+        .ui.green.disabled,
+        .ui.red.disabled {
+            opacity: 0.2
+        }
+        video {
+            width: 100%;
+        }
+    </style>
+    <script>
+        function home() {
+            document.getElementById('hom').style.display = 'inline';
+            document.getElementById('his').style.display = 'none';
+            document.getElementById('h').classList.add('active');
+            document.getElementById('hi').classList.remove('active');
+            document.getElementById('b1').style.display = 'inline';
+            document.getElementById('b2').style.display = 'inline';
+            html = ' ';
+            $("#tab").innerHTML(html);
+        }
+        function histor() {
+            document.getElementById('hom').style.display = 'none';
+            document.getElementById('his').style.display = 'inline';
+            document.getElementById('b1').style.display = 'none';
+            document.getElementById('b2').style.display = 'none';
+            document.getElementById('h').classList.remove('active');
+            document.getElementById('hi').classList.add('active');
+            $.get("/history").done(function (data){
+                data = JSON.parse(data);
+                  len = data.length;
+                    for(i=0;i<len;i++){
+                        d = data[i];
+                        if(d.temp<=35.9&&d.redFlag=='False'){
+                            html = `<tr><td>${new Date(d.timestamp).toUTCString()}</td><td><img src='${d.img}' width = "100px"/></td><td>False</td></tr>`;
+                        $("#tab").append(html);
+                        }
+                        else{
+                            html = `<tr><td>${new Date(d.timestamp).toUTCString()}</td><td><img src='${d.img}' width = "100px"/></td><td>True</td></tr>`;
+                            $("#tab").append(html);
+                        }
+                    }
+                });
+        }
+        function result2(base64img, red, temp) {
+
+            document.getElementById('img2').innerHTML = `<img src='${base64img}' width = '200px;'/>`;
+            if (temp >= 37.9) {
+                document.getElementById('table2').classList.remove("disabled");
+                document.getElementById('table2').classList.remove("green");
+                document.getElementById('table2').classList.add("red");
+                document.getElementById('tab1_text').innerHTML = temp;
+            }
+            else {
+                document.getElementById('table2').classList.remove("disabled");
+                document.getElementById('tab1_text').innerHTML = temp;
+            }
+            if (red == 'True') {
+                document.getElementById('table1').classList.remove('disabled');
+                document.getElementById('tab2_ltext').innerHTML = red.left;
+                document.getElementById('tab2_rtext').innerHTML = red.right;
+            }
+            else {
+                document.getElementById('table1').classList.remove('disabled');
+                document.getElementById('table1').classList.remove('red');
+                document.getElementById('table1').classList.add('green');
+                document.getElementById('tab2_ltext').innerHTML = red.left;
+                document.getElementById('tab2_rtext').innerHTML = red.right;
+            }
+            if (temp >= 37.9 || red == 'True' ) {
+                document.getElementById('getno').classList.remove('disabled');
+                document.getElementById('getyes').classList.add('disabled');
+                document.getElementById('h3').innerHTML = `<h3 class="font-weight-bold" style="color:#ff3547;">You Are Not Permitted To Move Ahead</h3>`;
+                //$.get("/light", { text: 'FF0201' }).done(function (data) { console.log(data); });
+            }
+            else {
+                document.getElementById('getno').classList.add('disabled');
+                document.getElementById('getyes').classList.remove('disabled');
+                document.getElementById('h3').innerHTML = `<h3 class="font-weight-bold" style="color:#00c851;">You Are Permitted To Move Ahead</h3>`;
+                //$.get("/light", { text: 'FF0101' }).done(function (data) { console.log(data); });
+            }
+            setTimeout(function () {
+                document.getElementById('getyes').classList.add('disabled');
+                document.getElementById('getno').classList.add('disabled');
+                document.getElementById('table2').classList.add('disabled');
+                document.getElementById('table2').classList.remove('red');
+                document.getElementById('table2').classList.remove('green');
+                document.getElementById('table2').classList.add('green');
+                document.getElementById('table1').classList.add('disabled');
+                document.getElementById('table1').classList.remove('green');
+                document.getElementById('table1').classList.remove('red');
+                document.getElementById('table1').classList.add('red');
+                //$.get("/light", { text: 'FF0200' }).done(function (data) { console.log(data); });
+                //$.get("/light", { text: 'FF0100' }).done(function (data) { console.log(data); });
+                document.getElementById('img2').innerHTML = '<p>Next Person can move in</p>';
+
+            }, 4000)
+        }
+
+        /*        setInterval(function () {
+                    $.get('/get', { msg: 'yes' }).done(function (data) {
+                        console.log(data);
+                    result2(data.img, data.redEye, 37.0);
+                }) // this will run after every 5 seconds
+                }, 5000)
+        */
+        const socket = io(`{{hostport}}`);
+        socket.on('conn', data => {
+            console.log("CONNECTION RESPONSE: ", data)
+            socket.emit('getData', () => { })
+        })
+        socket.on('data', function (data) {
+            try {
+                console.log(data);
+                console.log(data.img);
+                console.log(data.redEye);
+                console.log(data.temp);
+                result2(data.img, data.redEye,data.temp)
+            } catch (err) {
+                console.error(err)
+            }
+        });
+    </script>
+</head>
+
+<body onload="init_api()">
+    <!-- Just an image -->
+    <nav class="navbar navbar-dark white-color">
+        <a class="navbar-brand" href="https://www.predictmedix.com/">
+            <img src="{{url_for('static', filename='1.png')}}" height="50" width="50" alt="predictmedix logo">
+        </a>
+        <ul class="nav justify-content-end white lighten-4 nav-pills">
+            <li class="nav-item">
+                <a id="h" class="nav-link active" onclick="home()">Home</a>
+            </li>
+            <li class="nav-item">
+                <a id="hi" class="nav-link" onclick="histor()">History</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#!">Contact</a>
+            </li>
+        </ul>
+    </nav>
+    <div id="hom">
+        <div class="row" style="margin-left: 4px;">
+            <div class="column">
+                <div class="column2">
+                    <!-- Card Wider -->
+                    <div class="card card-cascade wider">
+
+                        <!-- Card image -->
+                        <div class="view view-cascade overlay">
+                            <div class="card-img-top" id="myVideo2"></div>
+                            <a href="#!">
+                                <div class="mask rgba-white-slight"></div>
+                            </a>
+                        </div>
+
+                        <!-- Card content -->
+                        <div class="card-body card-body-cascade text-center">
+
+                            <!-- Title -->
+                            <h3 class="card-title"><strong>RGB FEED</strong></h3>
+                            <!-- Subtitle -->
+                            <h4 class="blue-text pb-2"><strong>Please Keep Your Face Inside Box</strong></h4>
+                        </div>
+                    </div>
+                </div>
+                <div class="column2">
+                    <!-- Card Wider -->
+                    <div class="card card-cascade wider">
+                        <!-- Card image -->
+                        <div class="view view-cascade overlay">
+                            <div class="card-img-top" id="myVideo"></div>
+
+                            <a href="#!">
+                                <div class="mask rgba-white-slight"></div>
+                            </a>
+                        </div>
+                        <!-- Card content -->
+                        <div class="card-body card-body-cascade text-center">
+
+                            <!-- Title -->
+                            <h3 class="card-title"><strong>THERMAL FEED</strong></h3>
+                            <!-- Subtitle -->
+                            <h4 class="blue-text pb-2"><strong>Please Keep Your Face Inside Box</strong></h4>
+                          
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="column3">
+                <div id="res" align="middle">
+                    <a id="getno" class="ui red circular empty label disabled"
+                       style="height: 46%;width: 40%;" ></a>
+                    <hr />
+                    <a id="getyes" class="ui green circular empty label disabled"
+                       style="height: 46%;width: 40%;" ></a>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="column">
+                <div class="container my-5 py-5 z-depth-1">
+
+
+                    <!--Section: Content-->
+                    <section class="text-center px-md-5 mx-md-5 dark-grey-text" id="h3">
+                
+                      <h3 class="font-weight-bold" style="color:#2196f3;">Please Wait For Your Verification..!</h3>
+                
+                    </section>
+                    <!--Section: Content-->
+                
+                
+                  </div>
+            </div>
+        </div>
+    </div>
+    <div id="b1"
+        style="border: 5px solid yellow;height: 24%;width: 17%;position: absolute;z-index: 1;top: 17%;left: 48%;display: none;">
+
+    </div>
+    <div id="b2"
+        style="border: 5px solid yellow;height: 24%;width: 17%;position: absolute;z-index: 1;top: 17%;left: 11%;display: none;">
+
+    </div>
+    <div id="his" style="display:none;">
+        <table class="ui inverted table">
+            <thead>
+                <tr>
+                    <th>TimeStamp</th>
+                    <th>Image</th>
+                    <th>Result</th>
+                    <!--<th>Eye Redness</th>-->
+                </tr>
+            </thead>
+            <tbody id = "tab">
+            </tbody>
+        </table>
+    </div>
+</body>
+
+</html>
