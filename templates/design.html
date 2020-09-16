@@ -25,7 +25,10 @@
     <script src="https://cdn.jsdelivr.net/npm/socket.io-client@2/dist/socket.io.js"></script>
     <script type="text/javascript" src="https://flashphoner.com/downloads/builds/flashphoner_client/wcs_api-2.0/current/flashphoner.js"></script>
     <script type="text/javascript" src="{{url_for('static', filename='player-min.js')}}"></script>
-    <style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.2.9/semantic.min.css">
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.2.9/semantic.min.js"></script>
+   <style>
         .column {
             float: left;
             width: 75%;
@@ -74,7 +77,8 @@
             document.getElementById('b1').style.display = 'inline';
             document.getElementById('b2').style.display = 'inline';
             html = ' ';
-            $("#tab").innerHTML(html);
+            document.getElementById("tab").innerHTML = ' ';
+//            $("#tab").innerHTML(html);
         }
         function histor() {
             document.getElementById('hom').style.display = 'none';
@@ -100,72 +104,33 @@
                 });
         }
         function result2(base64img, red, temp) {
-
-            document.getElementById('img2').innerHTML = `<img src='${base64img}' width = '200px;'/>`;
-            if (temp >= 37.9) {
-                document.getElementById('table2').classList.remove("disabled");
-                document.getElementById('table2').classList.remove("green");
-                document.getElementById('table2').classList.add("red");
-                document.getElementById('tab1_text').innerHTML = temp;
-            }
-            else {
-                document.getElementById('table2').classList.remove("disabled");
-                document.getElementById('tab1_text').innerHTML = temp;
-            }
-            if (red == 'True') {
-                document.getElementById('table1').classList.remove('disabled');
-                document.getElementById('tab2_ltext').innerHTML = red.left;
-                document.getElementById('tab2_rtext').innerHTML = red.right;
-            }
-            else {
-                document.getElementById('table1').classList.remove('disabled');
-                document.getElementById('table1').classList.remove('red');
-                document.getElementById('table1').classList.add('green');
-                document.getElementById('tab2_ltext').innerHTML = red.left;
-                document.getElementById('tab2_rtext').innerHTML = red.right;
-            }
             if (temp >= 37.9 || red == 'True' ) {
                 document.getElementById('getno').classList.remove('disabled');
                 document.getElementById('getyes').classList.add('disabled');
                 document.getElementById('h3').innerHTML = `<h3 class="font-weight-bold" style="color:#ff3547;">You Are Not Permitted To Move Ahead</h3>`;
-                //$.get("/light", { text: 'FF0201' }).done(function (data) { console.log(data); });
             }
             else {
                 document.getElementById('getno').classList.add('disabled');
                 document.getElementById('getyes').classList.remove('disabled');
                 document.getElementById('h3').innerHTML = `<h3 class="font-weight-bold" style="color:#00c851;">You Are Permitted To Move Ahead</h3>`;
-                //$.get("/light", { text: 'FF0101' }).done(function (data) { console.log(data); });
             }
             setTimeout(function () {
                 document.getElementById('getyes').classList.add('disabled');
                 document.getElementById('getno').classList.add('disabled');
-                document.getElementById('table2').classList.add('disabled');
-                document.getElementById('table2').classList.remove('red');
-                document.getElementById('table2').classList.remove('green');
-                document.getElementById('table2').classList.add('green');
-                document.getElementById('table1').classList.add('disabled');
-                document.getElementById('table1').classList.remove('green');
-                document.getElementById('table1').classList.remove('red');
-                document.getElementById('table1').classList.add('red');
-                //$.get("/light", { text: 'FF0200' }).done(function (data) { console.log(data); });
-                //$.get("/light", { text: 'FF0100' }).done(function (data) { console.log(data); });
-                document.getElementById('img2').innerHTML = '<p>Next Person can move in</p>';
-
+                 document.getElementById('h3').innerHTML = `<h3 class="font-weight-bold" style="color:#2196f3;">Please Wait For Your Verification..!</h3>`;
             }, 4000)
         }
 
-        /*        setInterval(function () {
-                    $.get('/get', { msg: 'yes' }).done(function (data) {
-                        console.log(data);
-                    result2(data.img, data.redEye, 37.0);
-                }) // this will run after every 5 seconds
-                }, 5000)
-        */
         const socket = io(`{{hostport}}`);
+        rgb = `{{rgb}}`;
+        thermal = `{{thermal}}`
+        console.log(rgb);
+        console.log(thermal);
         socket.on('conn', data => {
             console.log("CONNECTION RESPONSE: ", data)
             socket.emit('getData', () => { })
         })
+        
         socket.on('data', function (data) {
             try {
                 console.log(data);
@@ -174,7 +139,7 @@
                 console.log(data.temp);
                 result2(data.img, data.redEye,data.temp)
             } catch (err) {
-                console.error(err)
+                console.log('wrong');
             }
         });
     </script>
